@@ -1,0 +1,58 @@
+{
+  "name": "marketgo",
+  "version": "1.0.0",
+  "main": "expo-router/entry",
+  "dependencies": {
+    "@expo/vector-icons": "15.1.1",
+    "@hookform/resolvers": "5.9.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "@tanstack/react-query": "^5.104.5",
+    "expo": "58.0.17",
+    "expo-constants": "58.0.13",
+    "expo-linking": "58.0.14",
+    "expo-router": "58.0.25",
+    "expo-status-bar": "58.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "7.90.0",
+    "react-native": "0.88.0",
+    "react-native-reanimated": "4.7.1",
+    "react-native-safe-area-context": "5.10.1",
+    "react-native-screens": "4.30.0",
+    "react-native-url-polyfill": "^4.0.0",
+    "react-native-web": "0.21.4",
+    "react-native-worklets": "0.13.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.11",
+    "@types/jest": "30.0.0",
+    "@types/react": "19.2.18",
+    "jest": "30.5.2",
+    "jest-expo": "58.0.12",
+    "prettier": "3.9.10",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "test": "jest && node --test \"supabase/tests/*.test.mjs\"",
+    "test:app": "jest",
+    "test:db": "node --test \"supabase/tests/*.test.mjs\"",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write app src __tests__ supabase/tests"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/supabase/"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
+    }
+  },
+  "private": true
+}

@@ -1,0 +1,45 @@
+# Saída de `npm test` no Mac da aluna (23/10/2026, ~18:35), após a correção R13
+karinamodesto@Karinas-Mac-mini marketgo % npm test
+
+> marketgo@1.0.0 test
+> jest && node --test "supabase/tests/*.test.mjs"
+
+ PASS  __tests__/orders.test.ts
+ PASS  __tests__/catalog.test.ts
+ PASS  __tests__/cart.test.ts
+ PASS  __tests__/money.test.ts
+ PASS  __tests__/checkout.test.ts
+ PASS  __tests__/errors.test.ts
+
+Test Suites: 6 passed, 6 total
+Tests:       38 passed, 38 total
+Snapshots:   0 total
+Time:        1.047 s, estimated 2 s
+Ran all test suites.
+▶ leitura e permissões
+  ✔ usuário logado lê lojas e só os produtos ativos (5.938417ms)
+  ✔ o app não consegue inserir pedidos diretamente (2.799792ms)
+  ✔ visitante (anon) não executa as funções (0.807208ms)
+✔ leitura e permissões (1255.23525ms)
+▶ create_order
+  ✔ calcula o total no servidor e guarda os itens (snapshot) (18.011584ms)
+  ✔ respeita o pedido mínimo da loja (3.527042ms)
+  ✔ recusa loja fechada (1.822333ms)
+  ✔ recusa itens inválidos: outra loja, inativo, quantidade e repetidos (7.663666ms)
+  ✔ valida carrinho vazio, login, endereço e pagamento (4.226875ms)
+  ✔ troco: só vale em dinheiro e precisa cobrir o total (5.502375ms)
+✔ create_order (41.155917ms)
+▶ privacidade e status
+  ✔ cada usuário só vê os próprios pedidos e itens (7.893875ms)
+  ✔ o pedido avança na ordem certa e para em entregue (6.017042ms)
+  ✔ outro usuário não avança nem cancela o pedido alheio (3.911167ms)
+  ✔ só cancela enquanto o pedido está recebido (6.368375ms)
+✔ privacidade e status (24.39175ms)
+ℹ tests 13
+ℹ suites 3
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1512.699875
