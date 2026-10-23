@@ -1,0 +1,20 @@
+# Saída de `npm test` no Mac da aluna (23/10/2026, ~20:02), após o extra 3 (cupons)
+Test Suites: 8 passed, 8 total
+Tests:       44 passed, 44 total
+▶ avaliação do pedido (6 testes) ✔
+▶ cupons de desconto
+  ✔ sem cupom, o pedido continua igual ao do guia
+  ✔ cupom percentual: desconto sobre o subtotal, calculado no banco
+  ✔ cupom de valor fixo só vale na loja dele
+  ✔ recusa cupom desconhecido, expirado ou desativado
+  ✔ exige o subtotal mínimo do cupom
+  ✔ cada pessoa usa o cupom uma vez; pedido cancelado devolve o cupom
+  ✔ a prévia do checkout dá o mesmo desconto que o pedido
+  ✔ o troco é conferido com o total já com desconto
+  ✔ o app não lê a tabela de cupons nem chama a regra interna; visitante não usa cupom
+▶ leitura e permissões (3 testes) ✔
+▶ create_order (6 testes) ✔
+▶ privacidade e status (4 testes) ✔
+ℹ tests 28
+ℹ pass 28
+ℹ fail 0

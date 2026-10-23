@@ -1,18 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Redirect, useRouter } from 'expo-router';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { FormInput } from '@/components/FormInput';
+import { Input } from '@/components/Input';
 import { Screen } from '@/components/Screen';
 import { PAYMENT_METHODS } from '@/constants/catalog';
 import { useCart } from '@/context/CartContext';
-import { useCreateOrder, useLastAddress } from '@/hooks/useOrders';
+import { useCheckCoupon, useCreateOrder, useLastAddress } from '@/hooks/useOrders';
 import { makeCheckoutSchema } from '@/schemas/checkout';
 import type { CheckoutFormData } from '@/schemas/checkout';
 import { colors, radius, spacing } from '@/theme';
+import type { CouponPreview } from '@/types';
+import {
+  isCouponCodeFormat,
+  normalizeCouponCode,
+  totalWithDiscount,
+} from '@/utils/coupons';
 import { friendlyError } from '@/utils/errors';
 import { formatMoney, parseMoney, roundMoney } from '@/utils/money';
 
@@ -21,8 +28,43 @@ export default function CheckoutScreen() {
   const { cart, totals, clear } = useCart();
   const create = useCreateOrder();
   const { data: last } = useLastAddress();
-  const schema = useMemo(() => makeCheckoutSchema(totals.total), [totals.total]);
+  // Extra: cupom. O desconto mostrado vem da prévia do banco (check_coupon).
+  const checkCoupon = useCheckCoupon();
+  const [couponText, setCouponText] = useState('');
+  const [coupon, setCoupon] = useState<CouponPreview | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const total = totalWithDiscount(totals.total, coupon?.discount ?? 0);
+  const schema = useMemo(() => makeCheckoutSchema(total), [total]);
   const prefilled = useRef(false);
+  const orderItems = cart.items.map((i) => ({
+    product_id: i.productId,
+    quantity: i.quantity,
+  }));
+
+  function applyCoupon() {
+    const code = normalizeCouponCode(couponText);
+    if (!isCouponCodeFormat(code)) {
+      setCouponError('Digite um código válido (letras e números).');
+      return;
+    }
+    setCouponError(null);
+    checkCoupon.mutate(
+      { storeId: cart.storeId as string, items: orderItems, code },
+      {
+        onSuccess: (preview) => setCoupon(preview),
+        onError: (e) => {
+          setCoupon(null);
+          setCouponError(friendlyError(e));
+        },
+      },
+    );
+  }
+
+  function removeCoupon() {
+    setCoupon(null);
+    setCouponText('');
+    setCouponError(null);
+  }
 
   const { control, handleSubmit, watch, setValue, reset } = useForm<CheckoutFormData>({
     resolver: zodResolver(schema),
@@ -60,7 +102,7 @@ export default function CheckoutScreen() {
       {
         storeId: cart.storeId as string,
         // Só ids e quantidades. Os preços são calculados no banco.
-        items: cart.items.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
+        items: orderItems,
         payment: values.payment,
         changeFor:
           values.payment === 'cash' && values.changeFor.trim()
@@ -70,6 +112,8 @@ export default function CheckoutScreen() {
         number: values.number,
         neighborhood: values.neighborhood,
         complement: values.complement,
+        // Só o código. O banco confere o cupom de novo e calcula o desconto.
+        coupon: coupon?.code ?? null,
       },
       {
         onSuccess: (orderId) => {
@@ -141,21 +185,63 @@ export default function CheckoutScreen() {
         />
       ) : null}
 
+      <Text style={styles.section}>Cupom de desconto</Text>
+      {coupon ? (
+        <View style={styles.couponApplied}>
+          <View style={styles.grow}>
+            <Text style={styles.couponCode}>{coupon.code}</Text>
+            <Text style={styles.optionHint}>{coupon.description}</Text>
+          </View>
+          <Button title="Remover" variant="ghost" onPress={removeCoupon} />
+        </View>
+      ) : (
+        <View style={styles.couponRow}>
+          <View style={styles.grow}>
+            <Input
+              label="Código (opcional)"
+              placeholder="Ex.: BEMVINDO10"
+              value={couponText}
+              onChangeText={(text) => {
+                setCouponText(text);
+                setCouponError(null);
+              }}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              error={couponError ?? undefined}
+            />
+          </View>
+          <Button
+            title="Aplicar"
+            variant="secondary"
+            onPress={applyCoupon}
+            loading={checkCoupon.isPending}
+            disabled={couponText.trim() === ''}
+            style={styles.couponButton}
+          />
+        </View>
+      )}
+
       <Card style={styles.summary}>
         <Text style={styles.summaryTitle}>Resumo · {cart.storeName}</Text>
         <SummaryRow label="Subtotal" value={formatMoney(totals.subtotal)} />
+        {coupon ? (
+          <SummaryRow
+            label={`Desconto (${coupon.code})`}
+            value={`− ${formatMoney(coupon.discount)}`}
+          />
+        ) : null}
         <SummaryRow
           label="Entrega"
           value={totals.deliveryFee === 0 ? 'Grátis' : formatMoney(totals.deliveryFee)}
         />
-        <SummaryRow label="Total" value={formatMoney(totals.total)} strong />
+        <SummaryRow label="Total" value={formatMoney(total)} strong />
       </Card>
 
       <Text style={styles.note}>
         Pagamento simulado neste projeto: nenhum valor é cobrado.
       </Text>
       <Button
-        title={`Confirmar pedido · ${formatMoney(totals.total)}`}
+        title={`Confirmar pedido · ${formatMoney(total)}`}
         onPress={submit}
         loading={create.isPending}
       />
@@ -215,6 +301,18 @@ const styles = StyleSheet.create({
   optionLabel: { fontSize: 16, fontWeight: '600', color: colors.text },
   optionHint: { fontSize: 13, color: colors.muted },
   summary: { marginTop: spacing.md },
+  couponRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  couponButton: { marginTop: 26, minWidth: 100 },
+  couponApplied: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    backgroundColor: colors.primarySoft,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  couponCode: { fontSize: 16, fontWeight: '800', color: colors.primary },
   summaryTitle: {
     fontSize: 16,
     fontWeight: '700',

@@ -95,6 +95,12 @@ export default function OrderScreen() {
         ))}
         <View style={styles.divider} />
         <Row label="Subtotal" value={formatMoney(order.subtotal)} />
+        {Number(order.discount ?? 0) > 0 ? (
+          <Row
+            label={`Desconto (${order.coupon_code})`}
+            value={`− ${formatMoney(Number(order.discount))}`}
+          />
+        ) : null}
         <Row
           label="Entrega"
           value={order.delivery_fee === 0 ? 'Grátis' : formatMoney(order.delivery_fee)}

@@ -28,6 +28,7 @@ Capturas feitas no iPhone, com Expo Go, durante o roteiro de testes do guia.
 **Extras além do guia** (sugestões do Apêndice do guia):
 
 - Avaliação do pedido entregue, de 1 a 5 estrelas e comentário, gravada por uma função no banco
+- Cupons de desconto (percentual ou valor fixo, por loja, validade, subtotal mínimo e um uso por pessoa), conferidos e calculados dentro da `create_order`
 - Integração contínua: GitHub Actions roda a tipagem e todos os testes a cada push
 
 ## Tecnologias
@@ -81,21 +82,30 @@ Editor do projeto e use a URL e a chave públicas dele no `.env`.
 ## Segurança em uma linha
 
 O app **não escreve** em `orders` nem em `order_items`: só existem políticas de leitura (`SELECT`).
-Toda escrita passa por funções (`create_order`, `advance_order`, `cancel_order` e, no extra,
-`rate_order`) que validam os
-dados, calculam os preços no banco e controlam o status. O app envia só ids e quantidades.
+Toda escrita passa por funções (`create_order`, `advance_order`, `cancel_order` e, nos extras,
+`rate_order`) que validam os dados, calculam os preços e o desconto do cupom no banco e controlam
+o status. O app envia só ids, quantidades e, se houver, o código do cupom. A tabela de cupons nem
+pode ser lida pelo app.
+
+Achado durante os testes no Supabase local: o `revoke ... from public` do guia não remove a permissão
+que o Supabase dá diretamente ao papel `anon` em funções novas, e visitantes podiam executar
+`advance_order`, `cancel_order` e `rate_order` (sem efeito, porque elas exigem o dono do pedido).
+`supabase/extras/03-permissoes.sql` fecha isso, e `supabase/tests/permissoes.test.mjs` reproduz
+o comportamento do Supabase para o teste não depender de lembrar disso.
 
 ## Testes
 
-| Comando             | O que testa                                                             |
-| ------------------- | ----------------------------------------------------------------------- |
-| `npm test`          | Tudo: app (Jest) e banco (PGlite), **60 testes**                        |
-| `npm run test:app`  | Carrinho, catálogo, pedidos, checkout, dinheiro, erros e avaliação (41) |
-| `npm run test:db`   | RLS, permissões, cálculo do pedido, status e avaliação (19)             |
-| `npm run typecheck` | Tipagem TypeScript de todo o projeto                                    |
+| Comando             | O que testa                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------ |
+| `npm test`          | Tudo: app (Jest) e banco (PGlite), **74 testes**                                                 |
+| `npm run test:app`  | Carrinho, catálogo, pedidos, checkout, dinheiro, erros, avaliação e cupons (44)                  |
+| `npm run test:db`   | RLS, permissões, cálculo do pedido, status, avaliação, cupons e permissões como no Supabase (30) |
+| `npm run typecheck` | Tipagem TypeScript de todo o projeto                                                             |
 
 São os 50 testes do guia, mais 1 teste de regressão criado durante o roteiro manual (mensagem de
-"sem conexão" no modo avião) e 9 testes do extra de avaliação (3 no app e 6 no banco). O teste do banco usa o PGlite (Postgres real dentro do Node), com o
+"sem conexão" no modo avião), 9 testes do extra de avaliação (3 no app e 6 no banco) e 12 do
+extra de cupons (3 no app e 9 no banco) e 2 de permissões, que simulam os privilégios padrão do
+Supabase (ver "Segurança"). O teste do banco usa o PGlite (Postgres real dentro do Node), com o
 mesmo `schema.sql` e `seed.sql`, sem Docker e sem internet.
 
 A cada push no GitHub, o workflow [`Testes`](.github/workflows/test.yml) instala o projeto do zero

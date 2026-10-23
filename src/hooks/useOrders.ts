@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   advanceOrder,
   cancelOrder,
+  checkCoupon,
   createOrder,
   getLastAddress,
   getOrder,
@@ -41,6 +42,9 @@ export function useCreateOrder() {
   const invalidate = useInvalidateOrders();
   return useMutation({ mutationFn: createOrder, onSuccess: invalidate });
 }
+
+// Extra: prévia do cupom. É uma mutação porque só roda quando a pessoa toca em "Aplicar".
+export const useCheckCoupon = () => useMutation({ mutationFn: checkCoupon });
 
 export function useAdvanceOrder() {
   const invalidate = useInvalidateOrders();

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { CreateOrderInput, Order } from '@/types';
+import type { CouponPreview, CreateOrderInput, Order } from '@/types';
 
 // A ÚNICA forma de criar um pedido: a função create_order, no banco. Ela confere os
 // itens, calcula o total com os preços do banco e devolve o id do pedido.
@@ -13,9 +13,27 @@ export async function createOrder(input: CreateOrderInput): Promise<string> {
     p_number: input.number,
     p_neighborhood: input.neighborhood,
     p_complement: input.complement,
+    p_coupon: input.coupon,
   });
   if (error) throw error;
   return data as string;
+}
+
+// Extra: prévia do cupom no checkout. O banco confere o cupom e calcula o desconto
+// com os preços dele; o app só mostra o resultado.
+export async function checkCoupon(input: {
+  storeId: string;
+  items: CreateOrderInput['items'];
+  code: string;
+}): Promise<CouponPreview> {
+  const { data, error } = await supabase.rpc('check_coupon', {
+    p_store_id: input.storeId,
+    p_items: input.items,
+    p_code: input.code,
+  });
+  if (error) throw error;
+  const r = data as { code: string; description: string; discount: number | string };
+  return { code: r.code, description: r.description, discount: Number(r.discount) };
 }
 
 export async function listOrders(): Promise<Order[]> {

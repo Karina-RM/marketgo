@@ -56,9 +56,19 @@ export interface Order {
   subtotal: number;
   delivery_fee: number;
   total: number;
+  // Extra: cupom de desconto (calculado e gravado pela create_order).
+  coupon_code?: string | null;
+  discount?: number;
   created_at: string;
   updated_at: string;
   items?: OrderItem[];
+}
+
+// Extra: resposta da prévia do cupom (função check_coupon, no banco).
+export interface CouponPreview {
+  code: string;
+  description: string;
+  discount: number;
 }
 
 // Extra: avaliação do pedido entregue (tabela order_ratings).
@@ -97,4 +107,5 @@ export interface CreateOrderInput {
   number: string;
   neighborhood: string;
   complement: string;
+  coupon: string | null; // só o código digitado; o desconto é calculado no banco
 }
