@@ -25,6 +25,11 @@ Capturas feitas no iPhone, com Expo Go, durante o roteiro de testes do guia.
 - Histórico de pedidos e dados isolados por usuário (Row Level Security)
 - Estados de carregando, erro (incluindo "Sem conexão com a internet.") e vazio
 
+**Extras além do guia** (sugestões do Apêndice do guia):
+
+- Avaliação do pedido entregue, de 1 a 5 estrelas e comentário, gravada por uma função no banco
+- Integração contínua: GitHub Actions roda a tipagem e todos os testes a cada push
+
 ## Tecnologias
 
 React Native 0.88 · Expo SDK 58 · Expo Router · TypeScript · Supabase (Auth, Postgres, RLS, funções SQL) ·
@@ -51,8 +56,9 @@ roda **localmente**, com o mesmo Supabase, pelo Supabase CLI e o Docker. O códi
    Se aparecer `port is already allocated`, outro projeto Supabase local está usando as portas
    54321 a 54327. Pare esse projeto (`npx supabase stop` na pasta dele) ou mude as portas em `supabase/config.toml`.
 3. Abra o Studio em **http://127.0.0.1:54323** → **SQL Editor** e execute, em consultas separadas
-   e nesta ordem, o **conteúdo** de `supabase/schema.sql` e de `supabase/seed.sql`
-   (por exemplo, `cat supabase/schema.sql | pbcopy` e cole no editor).
+   e nesta ordem, o **conteúdo** de `supabase/schema.sql`, `supabase/seed.sql` e de cada arquivo
+   de `supabase/extras/` (por exemplo, `cat supabase/schema.sql | pbcopy` e cole no editor).
+   Os arquivos de `extras/` podem ser executados mais de uma vez.
 4. Veja a chave pública com `npx supabase status` (campo **Publishable**). A chave **Secret** nunca vai no app.
 5. Crie o `.env` a partir do exemplo (`cp .env.example .env`) e preencha:
    ```
@@ -75,24 +81,25 @@ Editor do projeto e use a URL e a chave públicas dele no `.env`.
 ## Segurança em uma linha
 
 O app **não escreve** em `orders` nem em `order_items`: só existem políticas de leitura (`SELECT`).
-Toda escrita passa por funções (`create_order`, `advance_order`, `cancel_order`) que validam os
+Toda escrita passa por funções (`create_order`, `advance_order`, `cancel_order` e, no extra,
+`rate_order`) que validam os
 dados, calculam os preços no banco e controlam o status. O app envia só ids e quantidades.
 
 ## Testes
 
-| Comando             | O que testa                                                  |
-| ------------------- | ------------------------------------------------------------ |
-| `npm test`          | Tudo: app (Jest) e banco (PGlite), **51 testes**             |
-| `npm run test:app`  | Carrinho, catálogo, pedidos, checkout, dinheiro e erros (38) |
-| `npm run test:db`   | RLS, permissões, cálculo do pedido e status (13)             |
-| `npm run typecheck` | Tipagem TypeScript de todo o projeto                         |
+| Comando             | O que testa                                                             |
+| ------------------- | ----------------------------------------------------------------------- |
+| `npm test`          | Tudo: app (Jest) e banco (PGlite), **60 testes**                        |
+| `npm run test:app`  | Carrinho, catálogo, pedidos, checkout, dinheiro, erros e avaliação (41) |
+| `npm run test:db`   | RLS, permissões, cálculo do pedido, status e avaliação (19)             |
+| `npm run typecheck` | Tipagem TypeScript de todo o projeto                                    |
 
 São os 50 testes do guia, mais 1 teste de regressão criado durante o roteiro manual (mensagem de
-"sem conexão" no modo avião). O teste do banco usa o PGlite (Postgres real dentro do Node), com o
+"sem conexão" no modo avião) e 9 testes do extra de avaliação (3 no app e 6 no banco). O teste do banco usa o PGlite (Postgres real dentro do Node), com o
 mesmo `schema.sql` e `seed.sql`, sem Docker e sem internet.
 
 A cada push no GitHub, o workflow [`Testes`](.github/workflows/test.yml) instala o projeto do zero
-(`npm ci`) e roda a tipagem e os 51 testes. O selo no topo deste README mostra o resultado.
+(`npm ci`) e roda a tipagem e todos os testes. O selo no topo deste README mostra o resultado.
 
 O roteiro manual de 18 cenários do guia foi executado no iPhone, e os 18 foram aprovados.
 Resultados e capturas estão em [`docs/evidencias/registro.md`](docs/evidencias/registro.md).

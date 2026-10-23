@@ -3,6 +3,7 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { OrderTimeline } from '@/components/OrderTimeline';
+import { RatingCard } from '@/components/RatingCard';
 import { Screen } from '@/components/Screen';
 import { ErrorState, LoadingView } from '@/components/StateViews';
 import { PAYMENT_METHODS } from '@/constants/catalog';
@@ -112,6 +113,8 @@ export default function OrderScreen() {
           {order.change_for ? ` · troco para ${formatMoney(order.change_for)}` : ''}
         </Text>
       </Card>
+
+      {order.status === 'delivered' ? <RatingCard orderId={order.id} /> : null}
 
       {isActive(order.status) && nextStatus(order.status) ? (
         <View style={styles.demo}>

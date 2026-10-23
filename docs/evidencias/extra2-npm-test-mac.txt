@@ -1,0 +1,17 @@
+# Saída de `npm test` no Mac da aluna (23/10/2026, ~19:36), após o extra 2 (avaliação do pedido)
+Test Suites: 7 passed, 7 total
+Tests:       41 passed, 41 total
+▶ avaliação do pedido
+  ✔ o dono avalia um pedido entregue, e o comentário é gravado sem espaços extras
+  ✔ recusa pedido que ainda não foi entregue
+  ✔ recusa nota fora de 1 a 5 e comentário longo
+  ✔ cada pedido só pode ser avaliado uma vez
+  ✔ outro usuário não avalia nem lê a avaliação alheia
+  ✔ o app não grava avaliações direto na tabela, e visitante não executa a função
+✔ avaliação do pedido
+▶ leitura e permissões (3 testes) ✔
+▶ create_order (6 testes) ✔
+▶ privacidade e status (4 testes) ✔
+ℹ tests 19
+ℹ pass 19
+ℹ fail 0

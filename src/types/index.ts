@@ -61,6 +61,15 @@ export interface Order {
   items?: OrderItem[];
 }
 
+// Extra: avaliação do pedido entregue (tabela order_ratings).
+export interface OrderRating {
+  order_id: string;
+  user_id: string;
+  stars: number;
+  comment: string | null;
+  created_at: string;
+}
+
 // ---- carrinho (guardado no aparelho) ----
 export interface CartItem {
   productId: string;
