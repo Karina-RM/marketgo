@@ -1,0 +1,32 @@
+# Integração contínua: a cada push ou pull request, instala o projeto do zero
+# e roda a tipagem e os 51 testes (Jest + banco com PGlite). Não precisa de
+# Supabase, Docker nem segredos: o teste do banco roda o schema.sql no PGlite.
+name: Testes
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Instalar o Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências (exatamente como no package-lock)
+        run: npm ci
+
+      - name: Tipagem (TypeScript)
+        run: npm run typecheck
+
+      - name: Testes do app e do banco
+        run: npm test

@@ -1,5 +1,7 @@
 # MarketGo
 
+[![Testes](https://github.com/Karina-RM/marketgo/actions/workflows/test.yml/badge.svg)](https://github.com/Karina-RM/marketgo/actions/workflows/test.yml)
+
 Aplicativo mobile de compras com entrega: escolha uma loja, monte o carrinho, finalize o
 pedido e acompanhe cada etapa até a entrega. Os pagamentos são simulados.
 
@@ -88,6 +90,9 @@ dados, calculam os preços no banco e controlam o status. O app envia só ids e 
 São os 50 testes do guia, mais 1 teste de regressão criado durante o roteiro manual (mensagem de
 "sem conexão" no modo avião). O teste do banco usa o PGlite (Postgres real dentro do Node), com o
 mesmo `schema.sql` e `seed.sql`, sem Docker e sem internet.
+
+A cada push no GitHub, o workflow [`Testes`](.github/workflows/test.yml) instala o projeto do zero
+(`npm ci`) e roda a tipagem e os 51 testes. O selo no topo deste README mostra o resultado.
 
 O roteiro manual de 18 cenários do guia foi executado no iPhone, e os 18 foram aprovados.
 Resultados e capturas estão em [`docs/evidencias/registro.md`](docs/evidencias/registro.md).
