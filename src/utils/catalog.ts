@@ -1,6 +1,10 @@
 import type { Product, Store, StoreCategory } from '@/types';
 
-const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const normalize = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 
 // Busca por nome, categoria ou descrição (sem acento nem maiúsculas) e filtro por categoria.
 export function filterStores(

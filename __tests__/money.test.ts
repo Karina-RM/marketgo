@@ -1,6 +1,6 @@
 import { formatMoney, parseMoney, roundMoney, toInputMoney } from '@/utils/money';
 
-const nbsp = / /g;
+const nbsp = /\u00a0/g;
 
 describe('parseMoney', () => {
   it('aceita vírgula decimal', () => {

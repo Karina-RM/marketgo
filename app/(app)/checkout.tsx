@@ -10,6 +10,7 @@ import { Input } from '@/components/Input';
 import { Screen } from '@/components/Screen';
 import { PAYMENT_METHODS } from '@/constants/catalog';
 import { useCart } from '@/context/CartContext';
+import { useCartSync } from '@/hooks/useCartSync';
 import { useCheckCoupon, useCreateOrder, useLastAddress } from '@/hooks/useOrders';
 import { makeCheckoutSchema } from '@/schemas/checkout';
 import type { CheckoutFormData } from '@/schemas/checkout';
@@ -28,12 +29,24 @@ export default function CheckoutScreen() {
   const { cart, totals, clear } = useCart();
   const create = useCreateOrder();
   const { data: last } = useLastAddress();
+  // Antes de confirmar, o carrinho é conferido com os preços atuais do banco.
+  const syncNotice = useCartSync();
   // Extra: cupom. O desconto mostrado vem da prévia do banco (check_coupon).
   const checkCoupon = useCheckCoupon();
   const [couponText, setCouponText] = useState('');
   const [coupon, setCoupon] = useState<CouponPreview | null>(null);
   const [couponError, setCouponError] = useState<string | null>(null);
   const total = totalWithDiscount(totals.total, coupon?.discount ?? 0);
+  // Se o carrinho foi atualizado com preços novos, a prévia do cupom deixou de valer.
+  useEffect(() => {
+    if (syncNotice) {
+      setCoupon((current) => {
+        if (current)
+          setCouponError('O carrinho foi atualizado. Aplique o cupom de novo.');
+        return null;
+      });
+    }
+  }, [syncNotice]);
   const schema = useMemo(() => makeCheckoutSchema(total), [total]);
   const prefilled = useRef(false);
   const orderItems = cart.items.map((i) => ({
@@ -128,6 +141,7 @@ export default function CheckoutScreen() {
 
   return (
     <Screen scroll edges={['bottom', 'left', 'right']}>
+      {syncNotice ? <Text style={styles.syncNotice}>{syncNotice}</Text> : null}
       <Text style={styles.section}>Endereço de entrega</Text>
       <FormInput
         control={control}
@@ -301,6 +315,14 @@ const styles = StyleSheet.create({
   optionLabel: { fontSize: 16, fontWeight: '600', color: colors.text },
   optionHint: { fontSize: 13, color: colors.muted },
   summary: { marginTop: spacing.md },
+  syncNotice: {
+    backgroundColor: colors.primarySoft,
+    color: colors.text,
+    fontSize: 14,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    marginBottom: spacing.md,
+  },
   couponRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
   couponButton: { marginTop: 26, minWidth: 100 },
   couponApplied: {

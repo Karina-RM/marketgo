@@ -1,0 +1,10 @@
+# Auditoria (23/10/2026, ~21:41), Mac da aluna, dentro de marketgo/marketgo
+$ node -v
+v26.3.1                      → Etapa 1: Node 22 ou superior (ok)
+
+$ npm run format             → Etapa 14.1
+> prettier --write app src __tests__ supabase/tests
+69 arquivos, todos "(unchanged)": o código já estava padronizado.
+
+$ git status --short         → só as alterações e evidências ainda não commitadas
+(nenhum arquivo foi alterado pelo format)

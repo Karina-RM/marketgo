@@ -7,9 +7,9 @@ pedido e acompanhe cada etapa até a entrega. Os pagamentos são simulados.
 
 Projeto da disciplina **Programação para Dispositivos Móveis** (IESB, Prof. Me. Bruno Assunção Dias).
 
-| Lojas                                                   | Cardápio e carrinho                                         | Checkout                                              | Acompanhamento                                             |
-| ------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
-| ![Lojas](docs/evidencias/cenario-02-sessao-mantida.png) | ![Cardápio](docs/evidencias/cenario-06b-barra-carrinho.png) | ![Checkout](docs/evidencias/cenario-10b-checkout.png) | ![Acompanhamento](docs/evidencias/cenario-14-entregue.png) |
+| Lojas                                                   | Carrinho                                              | Checkout                                              | Acompanhamento                                             |
+| ------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------- |
+| ![Lojas](docs/evidencias/cenario-02-sessao-mantida.png) | ![Carrinho](docs/evidencias/cenario-06c-carrinho.png) | ![Checkout](docs/evidencias/cenario-10b-checkout.png) | ![Acompanhamento](docs/evidencias/cenario-14-entregue.png) |
 
 Capturas feitas no iPhone, com Expo Go, durante o roteiro de testes do guia.
 
@@ -24,6 +24,7 @@ Capturas feitas no iPhone, com Expo Go, durante o roteiro de testes do guia.
 - Acompanhamento com linha do tempo (atualiza sozinho), cancelamento e "Pedir novamente"
 - Histórico de pedidos e dados isolados por usuário (Row Level Security)
 - Estados de carregando, erro (incluindo "Sem conexão com a internet.") e vazio
+- Carrinho atualizado com os preços e a disponibilidade atuais ao abrir o carrinho e o checkout
 
 **Extras além do guia** (sugestões do Apêndice do guia):
 
@@ -95,17 +96,17 @@ o comportamento do Supabase para o teste não depender de lembrar disso.
 
 ## Testes
 
-| Comando             | O que testa                                                                                      |
-| ------------------- | ------------------------------------------------------------------------------------------------ |
-| `npm test`          | Tudo: app (Jest) e banco (PGlite), **74 testes**                                                 |
-| `npm run test:app`  | Carrinho, catálogo, pedidos, checkout, dinheiro, erros, avaliação e cupons (44)                  |
-| `npm run test:db`   | RLS, permissões, cálculo do pedido, status, avaliação, cupons e permissões como no Supabase (30) |
-| `npm run typecheck` | Tipagem TypeScript de todo o projeto                                                             |
+| Comando             | O que testa                                                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `npm test`          | Tudo: app (Jest) e banco (PGlite), **78 testes**                                                            |
+| `npm run test:app`  | Carrinho (com atualização de preços), catálogo, pedidos, checkout, dinheiro, erros, avaliação e cupons (48) |
+| `npm run test:db`   | RLS, permissões, cálculo do pedido, status, avaliação, cupons e permissões como no Supabase (30)            |
+| `npm run typecheck` | Tipagem TypeScript de todo o projeto                                                                        |
 
 São os 50 testes do guia, mais 1 teste de regressão criado durante o roteiro manual (mensagem de
 "sem conexão" no modo avião), 9 testes do extra de avaliação (3 no app e 6 no banco) e 12 do
-extra de cupons (3 no app e 9 no banco) e 2 de permissões, que simulam os privilégios padrão do
-Supabase (ver "Segurança"). O teste do banco usa o PGlite (Postgres real dentro do Node), com o
+extra de cupons (3 no app e 9 no banco), 2 de permissões, que simulam os privilégios padrão do
+Supabase (ver "Segurança"), e 4 da atualização de preços do carrinho. O teste do banco usa o PGlite (Postgres real dentro do Node), com o
 mesmo `schema.sql` e `seed.sql`, sem Docker e sem internet.
 
 A cada push no GitHub, o workflow [`Testes`](.github/workflows/test.yml) instala o projeto do zero
@@ -133,7 +134,7 @@ supabase/
   config.toml            configuração do Supabase local
   tests/                 testes do banco (PGlite)
 __tests__/               testes das regras do app (Jest)
-docs/                    relatório e evidências (capturas e registro dos testes)
+docs/                    evidências (capturas e registro dos testes)
 ```
 
 Regra de dependência: tela → hook → serviço → Supabase. As telas nunca importam o Supabase

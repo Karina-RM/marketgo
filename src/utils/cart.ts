@@ -145,3 +145,73 @@ export function reorderCart(
   }
   return { cart: cart.items.length > 0 ? cart : EMPTY_CART, skipped };
 }
+
+// Atualiza o carrinho salvo no aparelho com os dados atuais do banco: preço, nome e
+// disponibilidade dos itens, taxa de entrega e pedido mínimo da loja. Devolve o MESMO objeto
+// quando nada mudou (para não gravar nem renderizar à toa) e a lista do que mudou.
+export interface CartRefresh {
+  cart: Cart;
+  priceChanges: { name: string; from: number; to: number }[];
+  removed: string[];
+  storeChanged: boolean;
+}
+
+export function refreshCart(
+  cart: Cart,
+  store: CartStore,
+  products: Pick<Product, 'id' | 'name' | 'emoji' | 'price' | 'is_active'>[],
+): CartRefresh {
+  const priceChanges: CartRefresh['priceChanges'] = [];
+  const removed: string[] = [];
+  let itemsChanged = false;
+
+  const items: CartItem[] = [];
+  for (const item of cart.items) {
+    const product = products.find((p) => p.id === item.productId && p.is_active);
+    if (!product) {
+      removed.push(item.name);
+      itemsChanged = true;
+      continue;
+    }
+    if (cents(product.price) !== cents(item.price)) {
+      priceChanges.push({ name: product.name, from: item.price, to: product.price });
+    }
+    if (
+      cents(product.price) !== cents(item.price) ||
+      product.name !== item.name ||
+      product.emoji !== item.emoji
+    ) {
+      itemsChanged = true;
+    }
+    items.push({
+      ...item,
+      name: product.name,
+      emoji: product.emoji,
+      price: product.price,
+    });
+  }
+
+  const storeChanged =
+    cents(store.delivery_fee) !== cents(cart.deliveryFee) ||
+    cents(store.min_order) !== cents(cart.minOrder) ||
+    store.name !== cart.storeName;
+
+  if (!itemsChanged && !storeChanged) {
+    return { cart, priceChanges, removed, storeChanged };
+  }
+  if (items.length === 0) {
+    return { cart: EMPTY_CART, priceChanges, removed, storeChanged };
+  }
+  return {
+    cart: {
+      ...cart,
+      storeName: store.name,
+      deliveryFee: store.delivery_fee,
+      minOrder: store.min_order,
+      items,
+    },
+    priceChanges,
+    removed,
+    storeChanged,
+  };
+}

@@ -6,6 +6,7 @@ import { QuantityStepper } from '@/components/QuantityStepper';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/StateViews';
 import { useCart } from '@/context/CartContext';
+import { useCartSync } from '@/hooks/useCartSync';
 import { colors, spacing } from '@/theme';
 import { missingForMinimum } from '@/utils/cart';
 import { formatMoney } from '@/utils/money';
@@ -13,6 +14,8 @@ import { formatMoney } from '@/utils/money';
 export default function CartScreen() {
   const router = useRouter();
   const { cart, totals, changeQuantity, clear } = useCart();
+  // Confere preços e disponibilidade atuais com o banco (o carrinho fica salvo no aparelho).
+  const notice = useCartSync();
   const missing = missingForMinimum(cart);
 
   if (cart.items.length === 0) {
@@ -42,6 +45,7 @@ export default function CartScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.title}>Carrinho</Text>
         <Text style={styles.store}>Pedido em {cart.storeName}</Text>
+        {notice ? <Text style={styles.notice}>{notice}</Text> : null}
 
         {cart.items.map((item) => (
           <Card key={item.productId} style={styles.item}>
@@ -117,6 +121,14 @@ function Row({
 }
 
 const styles = StyleSheet.create({
+  notice: {
+    backgroundColor: colors.primarySoft,
+    color: colors.text,
+    fontSize: 14,
+    padding: spacing.md,
+    borderRadius: 12,
+    marginBottom: spacing.md,
+  },
   content: { padding: spacing.md },
   emptyAction: { padding: spacing.md },
   title: { fontSize: 26, fontWeight: '800', color: colors.text },

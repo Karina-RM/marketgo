@@ -1,0 +1,8 @@
+# Saída de `npm test` no Mac da aluna (23/10/2026, ~21:16), após a correção do carrinho (refreshCart)
+Test Suites: 9 passed, 9 total
+Tests:       48 passed, 48 total   (inclui __tests__/refreshCart.test.ts)
+▶ avaliação do pedido (6) ✔ · cupons de desconto (9) ✔ · leitura e permissões (3) ✔
+▶ create_order (6) ✔ · privacidade e status (4) ✔ · permissões das funções (como no Supabase real) (2) ✔
+ℹ tests 30
+ℹ pass 30
+ℹ fail 0
