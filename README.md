@@ -113,7 +113,7 @@ A cada push no GitHub, o workflow [`Testes`](.github/workflows/test.yml) instala
 (`npm ci`) e roda a tipagem e todos os testes. O selo no topo deste README mostra o resultado.
 
 O roteiro manual de 18 cenários do guia foi executado no iPhone, e os 18 foram aprovados.
-Resultados e capturas estão em [`docs/evidencias/registro.md`](docs/evidencias/registro.md).
+As capturas estão em [`docs/evidencias/`](docs/evidencias/).
 
 ## Arquitetura
 
@@ -134,7 +134,7 @@ supabase/
   config.toml            configuração do Supabase local
   tests/                 testes do banco (PGlite)
 __tests__/               testes das regras do app (Jest)
-docs/                    evidências (capturas e registro dos testes)
+docs/                    evidências (capturas e saídas dos testes)
 ```
 
 Regra de dependência: tela → hook → serviço → Supabase. As telas nunca importam o Supabase
